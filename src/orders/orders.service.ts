@@ -9,7 +9,46 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
-  ) {}
+  ) { }
 
-  async processOrder(processOrderDto: ProcessOrderDto) {}
+  async processOrder(processOrderDto: ProcessOrderDto) {
+
+    let rentalFee = 0;
+
+    if (processOrderDto.hours <= 1) {
+      rentalFee = 2;
+    } else if (processOrderDto.hours <= 3) {
+      rentalFee = 5;
+    }
+    else if (processOrderDto.hours <= 6) {
+      rentalFee = 9;
+    }
+    else if (processOrderDto.hours <= 12) {
+      rentalFee = 15;
+    } else {
+      throw new Error('Unprocessable entry');
+    }
+
+    const orderDataForInsert = {
+      id: processOrderDto.orderId,
+      userId: processOrderDto.userId,
+      hours: processOrderDto.hours,
+      rentalFee: rentalFee
+    };
+
+    console.log(JSON.stringify(orderDataForInsert));
+    
+
+    let order = this.orderRepository.create(orderDataForInsert);
+    await this.orderRepository.save(order);
+
+    if (!order) {
+      throw new Error('Unprocessable entry');
+    }
+
+    console.log("Order create with id: " + order.id);
+
+    return order;
+
+  }
 }
