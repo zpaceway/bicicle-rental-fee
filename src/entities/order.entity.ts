@@ -2,6 +2,8 @@ import { Entity, Column, PrimaryColumn, Index } from 'typeorm';
 
 @Entity()
 export class Order {
+
+
   @PrimaryColumn('uuid')
   id: string;
 
@@ -14,4 +16,6 @@ export class Order {
 
   @Column('float')
   rentalFee: number;
+
+ 
 }
