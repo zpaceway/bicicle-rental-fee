@@ -1,15 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ProcessOrderDto } from '../dto';
 import { Order } from '../entities';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
-    private orderRepository: Repository<Order>,
+    private readonly orderRepository: Repository<Order>,
   ) {}
 
-  async processOrder(processOrderDto: ProcessOrderDto) {}
+  async processOrder(processOrderDto: ProcessOrderDto) {
+    const order = this.orderRepository.create({
+      id: processOrderDto.orderId,
+      userId: processOrderDto.userId,
+      hours: processOrderDto.hours,
+    });
+
+    order.calcular();
+    await this.orderRepository.insert(order);
+
+    return {
+      id: processOrderDto.orderId,
+      userId: processOrderDto.userId,
+      hours: processOrderDto.hours,
+      rentalFee: order.rentalFee,
+    };
+  }
 }
